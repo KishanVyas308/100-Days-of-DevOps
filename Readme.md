@@ -32,7 +32,7 @@ Welcome to my **100 Days of DevOps Challenge**! This repository documents my jou
 | Day | Topic | Status |
 |-----|-------|--------|
 | [01](./Day-1/) | Linux User Setup with Non-Interactive Shell | ✅ |
-| 02 | Temporary User Setup with Expiry | ⏳ |
+| [02](./Day-2/) | Temporary User Setup with Expiry | ✅ |
 | 03 | Secure Root SSH Access | ⏳ |
 | 04 | Script Execution Permissions | ⏳ |
 | 05 | SELinux Installation and Configuration | ⏳ |
@@ -179,9 +179,9 @@ Welcome to my **100 Days of DevOps Challenge**! This repository documents my jou
 ## 📈 Progress Tracking
 
 ```
-🎯 Challenge Progress: 1/100 Days (1%)
-📅 Days Completed: 1
-🔥 Current Streak: 1 day
+🎯 Challenge Progress: 2/100 Days (2%)
+📅 Days Completed: 2
+🔥 Current Streak: 2 days
 ⭐ Favorite Topics: Linux Fundamentals
 🎪 Next Milestone: Complete Linux Phase (Day 20)
 ```
