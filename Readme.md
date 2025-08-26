@@ -14,7 +14,7 @@ Welcome to my **100 Days of DevOps Challenge**! This repository documents my jou
 
 > **Start Date:** August 24, 2025  
 > **Status:** In Progress 🔄  
-> **Current Day:** Day 1
+> **Current Day:** Day 3
 
 ## 🎯 Challenge Goals
 
@@ -33,6 +33,7 @@ Welcome to my **100 Days of DevOps Challenge**! This repository documents my jou
 |-----|-------|--------|
 | [01](./Day-1/) | Linux User Setup with Non-Interactive Shell | ✅ |
 | [02](./Day-2/) | Temporary User Setup with Expiry | ✅ |
+| [03](./Day-3/) | Secure Root SSH Access | ✅ |
 | 03 | Secure Root SSH Access | ⏳ |
 | 04 | Script Execution Permissions | ⏳ |
 | 05 | SELinux Installation and Configuration | ⏳ |
@@ -179,10 +180,10 @@ Welcome to my **100 Days of DevOps Challenge**! This repository documents my jou
 ## 📈 Progress Tracking
 
 ```
-🎯 Challenge Progress: 2/100 Days (2%)
-📅 Days Completed: 2
-🔥 Current Streak: 2 days
-⭐ Favorite Topics: Linux Fundamentals
+🎯 Challenge Progress: 3/100 Days (3%)
+📅 Days Completed: 3
+🔥 Current Streak: 3 days
+⭐ Favorite Topics: Linux Fundamentals, SSH Security
 🎪 Next Milestone: Complete Linux Phase (Day 20)
 ```
 
