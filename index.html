@@ -1,0 +1,1981 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>100 Days of DevOps - Progress Dashboard</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary-color: #2563eb;
+            --primary-hover: #1d4ed8;
+            --primary-light: #3b82f6;
+            --secondary-color: #64748b;
+            --secondary-hover: #475569;
+            --secondary-light: #94a3b8;
+            --accent-color: #06b6d4;
+            --success-color: #10b981;
+            --warning-color: #f59e0b;
+            --danger-color: #ef4444;
+            --bg-primary: #0f172a;
+            --bg-secondary: #1e293b;
+            --bg-tertiary: #334155;
+            --bg-card: #1e293b;
+            --bg-hover: #334155;
+            --text-primary: #f8fafc;
+            --text-secondary: #cbd5e1;
+            --text-muted: #94a3b8;
+            --border-color: #334155;
+            --border-light: #475569;
+            --shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3), 0 2px 4px -1px rgba(0, 0, 0, 0.2);
+            --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.4), 0 4px 6px -2px rgba(0, 0, 0, 0.3);
+            --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.4), 0 10px 10px -5px rgba(0, 0, 0, 0.2);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background-color: var(--bg-primary);
+            min-height: 100vh;
+            color: var(--text-primary);
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 24px;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding: 40px 0;
+        }
+
+        .header h1 {
+            font-size: 3.5rem;
+            font-weight: 700;
+            margin-bottom: 16px;
+            color: var(--text-primary);
+            letter-spacing: -0.025em;
+        }
+
+        .header .subtitle {
+            font-size: 1.25rem;
+            color: var(--text-secondary);
+            font-weight: 400;
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .header .version {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background-color: var(--bg-secondary);
+            color: var(--primary-color);
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            margin-top: 20px;
+            border: 1px solid var(--border-color);
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 24px;
+            margin-bottom: 40px;
+        }
+
+        .stat-card {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 32px 24px;
+            text-align: center;
+            box-shadow: var(--shadow);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-lg);
+            border-color: var(--primary-color);
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background-color: var(--primary-color);
+        }
+
+        .stat-card.success::before {
+            background-color: var(--success-color);
+        }
+
+        .stat-card.warning::before {
+            background-color: var(--warning-color);
+        }
+
+        .stat-card.info::before {
+            background-color: var(--accent-color);
+        }
+
+        .stat-card i {
+            font-size: 2.5rem;
+            margin-bottom: 16px;
+            color: var(--primary-color);
+        }
+
+        .stat-card.success i {
+            color: var(--success-color);
+        }
+
+        .stat-card.warning i {
+            color: var(--warning-color);
+        }
+
+        .stat-card.info i {
+            color: var(--accent-color);
+        }
+
+        .stat-card h3 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+            color: var(--text-primary);
+            line-height: 1;
+        }
+
+        .stat-card p {
+            color: var(--text-muted);
+            font-size: 0.875rem;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .progress-overview {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 32px;
+            margin-bottom: 40px;
+            box-shadow: var(--shadow);
+        }
+
+        .progress-overview h2 {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 24px;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .progress-bar-container {
+            margin-bottom: 24px;
+        }
+
+        .progress-label {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+
+        .progress-text {
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: var(--text-secondary);
+        }
+
+        .progress-percentage {
+            font-size: 0.875rem;
+            font-weight: 600;
+            color: var(--primary-color);
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 12px;
+            background-color: var(--bg-tertiary);
+            border-radius: 6px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background-color: var(--primary-color);
+            border-radius: 6px;
+            transition: width 1.5s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+        }
+
+        .progress-meta {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 16px;
+            border-top: 1px solid var(--border-color);
+            font-size: 0.875rem;
+            color: var(--text-muted);
+        }
+
+        .search-container {
+            margin-bottom: 32px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .search-wrapper {
+            position: relative;
+            width: 100%;
+            max-width: 400px;
+        }
+
+        .search-box {
+            width: 100%;
+            padding: 16px 48px 16px 20px;
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: 400;
+            background-color: var(--bg-secondary);
+            color: var(--text-primary);
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        .search-box:focus {
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+        }
+
+        .search-box::placeholder {
+            color: var(--text-muted);
+        }
+
+        .search-icon {
+            position: absolute;
+            right: 16px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--text-muted);
+            pointer-events: none;
+        }
+
+        .filter-buttons {
+            margin-bottom: 32px;
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+
+        .filter-btn {
+            background-color: var(--bg-secondary);
+            color: var(--text-secondary);
+            border: 1px solid var(--border-color);
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.875rem;
+            font-weight: 500;
+            text-transform: capitalize;
+        }
+
+        .filter-btn:hover {
+            background-color: var(--bg-hover);
+            color: var(--text-primary);
+            border-color: var(--border-light);
+        }
+
+        .filter-btn.active {
+            background-color: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+        }
+
+        .phases-container {
+            display: grid;
+            gap: 24px;
+        }
+
+        .phase {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+            transition: all 0.3s ease;
+        }
+
+        .phase:hover {
+            box-shadow: var(--shadow-lg);
+        }
+
+        .phase-header {
+            padding: 24px 32px;
+            background-color: var(--bg-secondary);
+            border-bottom: 1px solid var(--border-color);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .phase-header:hover {
+            background-color: var(--bg-hover);
+        }
+
+        .phase-header.active {
+            background-color: var(--bg-tertiary);
+        }
+
+        .phase-title {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .phase-title h3 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin: 0;
+        }
+
+        .phase-toggle {
+            color: var(--text-muted);
+            font-size: 1.25rem;
+            transition: transform 0.3s ease;
+        }
+
+        .phase-header.active .phase-toggle {
+            transform: rotate(180deg);
+        }
+
+        .phase-stats {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            font-size: 0.875rem;
+            color: var(--text-muted);
+        }
+
+        .phase-progress-bar {
+            flex: 1;
+            height: 8px;
+            background-color: var(--bg-tertiary);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .phase-progress-fill {
+            height: 100%;
+            background-color: var(--success-color);
+            border-radius: 4px;
+            transition: width 1s ease;
+        }
+
+        .phase-content {
+            padding: 32px;
+            display: none;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .phase-content.active {
+            display: block;
+        }
+
+        .days-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 20px;
+        }
+
+        .day-card {
+            background-color: var(--bg-secondary);
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            padding: 24px;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .day-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background-color: var(--warning-color);
+            transition: background-color 0.3s ease;
+        }
+
+        .day-card.completed::before {
+            background-color: var(--success-color);
+        }
+
+        .day-card.completed {
+            border-color: var(--success-color);
+            background-color: rgba(16, 185, 129, 0.05);
+        }
+
+        .day-card.pending {
+            border-color: var(--warning-color);
+            background-color: rgba(245, 158, 11, 0.05);
+        }
+
+        .day-card:hover {
+            transform: translateY(-4px);
+            box-shadow: var(--shadow-lg);
+            border-color: var(--primary-color);
+        }
+
+        .day-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 16px;
+        }
+
+        .day-number {
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--primary-color);
+            background-color: rgba(37, 99, 235, 0.1);
+            padding: 4px 12px;
+            border-radius: 20px;
+            border: 1px solid rgba(37, 99, 235, 0.2);
+        }
+
+        .day-status {
+            font-size: 1.5rem;
+            line-height: 1;
+        }
+
+        .day-title {
+            font-size: 1rem;
+            font-weight: 500;
+            margin-bottom: 16px;
+            color: var(--text-primary);
+            line-height: 1.4;
+        }
+
+        .day-tech-stack {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .tech-tag {
+            background-color: var(--bg-tertiary);
+            color: var(--text-secondary);
+            padding: 4px 12px;
+            border-radius: 16px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            border: 1px solid var(--border-color);
+            transition: all 0.3s ease;
+        }
+
+        .tech-tag:hover {
+            background-color: var(--primary-color);
+            color: white;
+            border-color: var(--primary-color);
+        }
+
+        .loading {
+            text-align: center;
+            padding: 60px 20px;
+        }
+
+        .spinner {
+            display: inline-block;
+            width: 40px;
+            height: 40px;
+            border: 3px solid var(--border-color);
+            border-radius: 50%;
+            border-top-color: var(--primary-color);
+            animation: spin 1s linear infinite;
+            margin-bottom: 16px;
+        }
+
+        .loading-text {
+            color: var(--text-secondary);
+            font-size: 1rem;
+            font-weight: 500;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .error {
+            background-color: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            color: var(--danger-color);
+            padding: 24px;
+            border-radius: 12px;
+            text-align: center;
+            margin: 20px 0;
+            font-weight: 500;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(4px);
+        }
+
+        .modal-content {
+            background-color: var(--bg-card);
+            border: 1px solid var(--border-color);
+            margin: 5% auto;
+            padding: 40px;
+            border-radius: 16px;
+            width: 90%;
+            max-width: 900px;
+            max-height: 80vh;
+            overflow-y: auto;
+            box-shadow: var(--shadow-xl);
+            position: relative;
+        }
+
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 24px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .modal-title {
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin: 0;
+        }
+
+        .close {
+            background: none;
+            border: none;
+            color: var(--text-muted);
+            font-size: 24px;
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 8px;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+        }
+
+        .close:hover {
+            background-color: var(--bg-hover);
+            color: var(--text-primary);
+        }
+
+        .modal-body {
+            color: var(--text-secondary);
+            line-height: 1.6;
+        }
+
+        .modal-actions {
+            margin-top: 24px;
+            padding-top: 16px;
+            border-top: 1px solid var(--border-color);
+            display: flex;
+            gap: 12px;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 12px 24px;
+            border-radius: 8px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            text-decoration: none;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            border: none;
+        }
+
+        .btn-primary {
+            background-color: var(--primary-color);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background-color: var(--primary-hover);
+        }
+
+        .btn-secondary {
+            background-color: var(--bg-secondary);
+            color: var(--text-secondary);
+            border: 1px solid var(--border-color);
+        }
+
+        .btn-secondary:hover {
+            background-color: var(--bg-hover);
+            color: var(--text-primary);
+        }
+
+        /* Pending Notice Styles */
+        .pending-notice {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+            padding: 20px;
+            background: rgba(245, 158, 11, 0.1);
+            border: 1px solid rgba(245, 158, 11, 0.3);
+            border-radius: 12px;
+            margin-top: 20px;
+        }
+
+        .pending-icon {
+            flex-shrink: 0;
+            width: 48px;
+            height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: rgba(245, 158, 11, 0.2);
+            border-radius: 50%;
+            color: #f59e0b;
+            font-size: 20px;
+        }
+
+        .pending-content h4 {
+            margin: 0 0 8px 0;
+            color: var(--text-primary);
+            font-size: 16px;
+            font-weight: 600;
+        }
+
+        .pending-content p {
+            margin: 0;
+            color: var(--text-secondary);
+            font-size: 14px;
+            line-height: 1.5;
+        }
+
+        /* README Content Styles */
+        .readme-content {
+            background: var(--surface-color);
+            border-radius: 12px;
+            padding: 24px;
+            margin: 20px 0;
+            border: 1px solid var(--border-color);
+            max-height: 400px;
+            overflow-y: auto;
+            font-family: 'Inter', sans-serif;
+            line-height: 1.6;
+        }
+
+        .readme-content::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .readme-content::-webkit-scrollbar-track {
+            background: var(--card-bg);
+            border-radius: 3px;
+        }
+
+        .readme-content::-webkit-scrollbar-thumb {
+            background: var(--border-color);
+            border-radius: 3px;
+        }
+
+        .readme-content::-webkit-scrollbar-thumb:hover {
+            background: var(--text-muted);
+        }
+
+        .readme-h1 {
+            color: var(--text-primary);
+            font-size: 28px;
+            font-weight: 700;
+            margin: 0 0 24px 0;
+            padding-bottom: 16px;
+            border-bottom: 2px solid var(--primary-color);
+        }
+
+        .readme-h2 {
+            color: var(--text-primary);
+            font-size: 22px;
+            font-weight: 600;
+            margin: 32px 0 16px 0;
+            padding-bottom: 8px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .readme-h3 {
+            color: var(--text-primary);
+            font-size: 18px;
+            font-weight: 600;
+            margin: 24px 0 12px 0;
+        }
+
+        .readme-h4 {
+            color: var(--text-primary);
+            font-size: 16px;
+            font-weight: 600;
+            margin: 20px 0 10px 0;
+        }
+
+        .readme-p {
+            color: var(--text-secondary);
+            margin: 0 0 16px 0;
+            line-height: 1.7;
+        }
+
+        .code-block {
+            background: var(--card-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 8px;
+            margin: 16px 0;
+            overflow-x: auto;
+        }
+
+        .code-block pre {
+            margin: 0;
+            padding: 16px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            line-height: 1.5;
+            color: var(--text-primary);
+        }
+
+        .inline-code {
+            background: var(--card-bg);
+            color: var(--accent-color);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            border: 1px solid var(--border-color);
+        }
+
+        .readme-ul, .readme-ol {
+            margin: 16px 0;
+            padding-left: 20px;
+        }
+
+        .readme-li, .readme-li-numbered {
+            color: var(--text-secondary);
+            margin: 8px 0;
+            line-height: 1.6;
+        }
+
+        .readme-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 16px 0;
+            background: var(--card-bg);
+            border-radius: 8px;
+            overflow: hidden;
+            border: 1px solid var(--border-color);
+        }
+
+        .readme-table td {
+            padding: 12px 16px;
+            border-bottom: 1px solid var(--border-color);
+            color: var(--text-secondary);
+        }
+
+        .readme-table tr:first-child td {
+            background: var(--surface-color);
+            color: var(--text-primary);
+            font-weight: 600;
+        }
+
+        .readme-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .readme-link {
+            color: var(--accent-color);
+            text-decoration: none;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            transition: color 0.2s;
+        }
+
+        .readme-link:hover {
+            color: #0891b2;
+            text-decoration: underline;
+        }
+
+        .readme-link i {
+            font-size: 12px;
+        }
+
+        .checkbox {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin: 8px 0;
+            color: var(--text-secondary);
+        }
+
+        .checkbox.checked {
+            color: var(--success-color);
+        }
+
+        .checkbox.checked i {
+            color: var(--success-color);
+        }
+
+        .checkbox.unchecked i {
+            color: var(--text-muted);
+        }
+
+        .emoji {
+            font-size: 16px;
+            display: inline-block;
+            margin: 0 2px;
+        }
+
+        .emoji.success { color: var(--success-color); }
+        .emoji.pending { color: #f59e0b; }
+        .emoji.target { color: var(--accent-color); }
+        .emoji.rocket { color: #8b5cf6; }
+        .emoji.warning { color: #f59e0b; }
+        .emoji.error { color: #ef4444; }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: var(--text-muted);
+        }
+
+        .empty-state i {
+            font-size: 4rem;
+            margin-bottom: 16px;
+            color: var(--text-muted);
+        }
+
+        .empty-state h3 {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: var(--text-secondary);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1024px) {
+            .container {
+                padding: 20px;
+            }
+            
+            .stats-grid {
+                grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+                gap: 20px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2.5rem;
+            }
+            
+            .header .subtitle {
+                font-size: 1.125rem;
+            }
+            
+            .stats-grid {
+                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+                gap: 16px;
+            }
+            
+            .stat-card {
+                padding: 24px 20px;
+            }
+            
+            .days-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .search-wrapper {
+                max-width: 100%;
+            }
+            
+            .filter-buttons {
+                gap: 8px;
+            }
+            
+            .filter-btn {
+                padding: 8px 16px;
+                font-size: 0.8rem;
+            }
+            
+            .phase-header {
+                padding: 20px 24px;
+            }
+            
+            .phase-content {
+                padding: 24px;
+            }
+            
+            .modal-content {
+                width: 95%;
+                padding: 24px;
+                margin: 10% auto;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .filter-buttons {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .filter-btn {
+                width: 100%;
+                max-width: 200px;
+            }
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background-color: var(--bg-secondary);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background-color: var(--border-light);
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background-color: var(--secondary-color);
+        }
+
+        /* Focus styles for accessibility */
+        .filter-btn:focus,
+        .search-box:focus,
+        .day-card:focus,
+        .phase-header:focus {
+            outline: 2px solid var(--primary-color);
+            outline-offset: 2px;
+        }
+
+        /* Animation utilities */
+        .fade-in {
+            animation: fadeIn 0.6s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .slide-up {
+            animation: slideUp 0.4s ease-out;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1><i class="fas fa-rocket"></i> 100 Days of DevOps</h1>
+            <p class="subtitle">A comprehensive journey through modern DevOps practices, tools, and methodologies</p>
+            <div class="version">
+                <i class="fas fa-code-branch"></i>
+                <span>Version 2.0</span>
+            </div>
+        </div>
+
+        <div id="loading" class="loading">
+            <div class="spinner"></div>
+            <div class="loading-text">Loading progress data from GitHub...</div>
+        </div>
+
+        <div id="error" class="error" style="display: none;"></div>
+
+        <div id="content" style="display: none;" class="fade-in">
+            <div class="stats-grid">
+                <div class="stat-card success">
+                    <i class="fas fa-calendar-check"></i>
+                    <h3 id="completed-days">0</h3>
+                    <p>Days Completed</p>
+                </div>
+                <div class="stat-card warning">
+                    <i class="fas fa-fire"></i>
+                    <h3 id="current-streak">0</h3>
+                    <p>Current Streak</p>
+                </div>
+                <div class="stat-card info">
+                    <i class="fas fa-chart-line"></i>
+                    <h3 id="progress-percentage">0%</h3>
+                    <p>Overall Progress</p>
+                </div>
+                <div class="stat-card">
+                    <i class="fas fa-trophy"></i>
+                    <h3 id="phases-completed">0</h3>
+                    <p>Phases Completed</p>
+                </div>
+            </div>
+
+            <div class="progress-overview">
+                <h2><i class="fas fa-chart-bar"></i> Progress Overview</h2>
+                <div class="progress-bar-container">
+                    <div class="progress-label">
+                        <span class="progress-text">Overall Completion</span>
+                        <span class="progress-percentage" id="progress-text">0% Complete</span>
+                    </div>
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progress-fill" style="width: 0%;"></div>
+                    </div>
+                </div>
+                <div class="progress-meta">
+                    <span><i class="fas fa-calendar"></i> Started: August 24, 2025</span>
+                    <span id="last-updated"><i class="fas fa-sync"></i> Last Updated: Loading...</span>
+                </div>
+            </div>
+
+            <div class="search-container">
+                <div class="search-wrapper">
+                    <input type="text" id="search-box" class="search-box" placeholder="Search days by topic or technology...">
+                    <i class="fas fa-search search-icon"></i>
+                </div>
+            </div>
+
+            <div class="filter-buttons">
+                <button class="filter-btn active" onclick="filterDays('all')">
+                    <i class="fas fa-list"></i> All Days
+                </button>
+                <button class="filter-btn" onclick="filterDays('completed')">
+                    <i class="fas fa-check"></i> Completed
+                </button>
+                <button class="filter-btn" onclick="filterDays('pending')">
+                    <i class="fas fa-clock"></i> Pending
+                </button>
+                <button class="filter-btn" onclick="filterDays('linux')">
+                    <i class="fab fa-linux"></i> Linux
+                </button>
+                <button class="filter-btn" onclick="filterDays('docker')">
+                    <i class="fab fa-docker"></i> Docker
+                </button>
+                <button class="filter-btn" onclick="filterDays('kubernetes')">
+                    <i class="fas fa-dharmachakra"></i> Kubernetes
+                </button>
+            </div>
+
+            <div class="phases-container" id="phases-container">
+                <!-- Dynamic content will be loaded here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal for day details -->
+    <div id="day-modal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 class="modal-title">Day Details</h2>
+                <button class="close" type="button">
+                    <i class="fas fa-times"></i>
+                </button>
+            </div>
+            <div class="modal-body" id="modal-content">
+                <!-- Day details will be loaded here -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Global variables
+        let allDaysData = [];
+        let currentFilter = 'all';
+
+        // GitHub API configuration
+        const GITHUB_API_BASE = 'https://api.github.com/repos/KishanVyas308/100-Days-of-DevOps';
+        const GITHUB_RAW_BASE = 'https://raw.githubusercontent.com/KishanVyas308/100-Days-of-DevOps/master';
+
+        // Days configuration
+        const daysConfig = [
+            // Phase 1: Linux Fundamentals (Days 1-20)
+            { day: 1, title: "Linux User Setup with Non-Interactive Shell", phase: "Linux Fundamentals", technologies: ["Linux", "Shell", "User Management"] },
+            { day: 2, title: "Temporary User Setup with Expiry", phase: "Linux Fundamentals", technologies: ["Linux", "User Management", "Security"] },
+            { day: 3, title: "Secure Root SSH Access", phase: "Linux Fundamentals", technologies: ["SSH", "Security", "Linux"] },
+            { day: 4, title: "Script Execution Permissions", phase: "Linux Fundamentals", technologies: ["Linux", "Permissions", "Security"] },
+            { day: 5, title: "SELinux Installation and Configuration", phase: "Linux Fundamentals", technologies: ["SELinux", "Security", "Linux"] },
+            { day: 6, title: "Create a Cron Job", phase: "Linux Fundamentals", technologies: ["Cron", "Linux", "Automation"] },
+            { day: 7, title: "Linux SSH Authentication", phase: "Linux Fundamentals", technologies: ["SSH", "Authentication", "Linux"] },
+            { day: 8, title: "Install Ansible", phase: "Linux Fundamentals", technologies: ["Ansible", "Installation", "Linux"] },
+            { day: 9, title: "MariaDB Troubleshooting", phase: "Linux Fundamentals", technologies: ["MariaDB", "Database", "Troubleshooting"] },
+            { day: 10, title: "Linux Bash Scripts", phase: "Linux Fundamentals", technologies: ["Bash", "Scripting", "Linux"] },
+            { day: 11, title: "Install and Configure Tomcat Server", phase: "Linux Fundamentals", technologies: ["Tomcat", "Java", "Web Server"] },
+            { day: 12, title: "Linux Network Services", phase: "Linux Fundamentals", technologies: ["Networking", "Linux", "Services"] },
+            { day: 13, title: "IPtables Installation And Configuration", phase: "Linux Fundamentals", technologies: ["IPtables", "Firewall", "Security"] },
+            { day: 14, title: "Linux Process Troubleshooting", phase: "Linux Fundamentals", technologies: ["Process Management", "Linux", "Troubleshooting"] },
+            { day: 15, title: "Setup SSL for Nginx", phase: "Linux Fundamentals", technologies: ["SSL", "Nginx", "Security"] },
+            { day: 16, title: "Install and Configure Nginx as an LBR", phase: "Linux Fundamentals", technologies: ["Nginx", "Load Balancer", "Configuration"] },
+            { day: 17, title: "Install and Configure PostgreSQL", phase: "Linux Fundamentals", technologies: ["PostgreSQL", "Database", "Configuration"] },
+            { day: 18, title: "Configure LAMP server", phase: "Linux Fundamentals", technologies: ["LAMP", "Apache", "PHP", "MySQL"] },
+            { day: 19, title: "Install and Configure Web Application", phase: "Linux Fundamentals", technologies: ["Web Apps", "Configuration", "Deployment"] },
+            { day: 20, title: "Configure Nginx + PHP-FPM Using Unix Sock", phase: "Linux Fundamentals", technologies: ["Nginx", "PHP-FPM", "Unix Socket"] },
+
+            // Phase 2: Version Control with Git (Days 21-34)
+            { day: 21, title: "Set Up Git Repository on Storage Server", phase: "Version Control with Git", technologies: ["Git", "Repository", "Setup"] },
+            { day: 22, title: "Clone Git Repository on Storage Server", phase: "Version Control with Git", technologies: ["Git", "Clone", "Repository"] },
+            { day: 23, title: "Fork a Git Repository", phase: "Version Control with Git", technologies: ["Git", "Fork", "GitHub"] },
+            { day: 24, title: "Git Create Branches", phase: "Version Control with Git", technologies: ["Git", "Branches", "Version Control"] },
+            { day: 25, title: "Git Merge Branches", phase: "Version Control with Git", technologies: ["Git", "Merge", "Branches"] },
+            { day: 26, title: "Git Manage Remotes", phase: "Version Control with Git", technologies: ["Git", "Remote", "Repository"] },
+            { day: 27, title: "Git Revert Some Changes", phase: "Version Control with Git", technologies: ["Git", "Revert", "Version Control"] },
+            { day: 28, title: "Git Cherry Pick", phase: "Version Control with Git", technologies: ["Git", "Cherry Pick", "Version Control"] },
+            { day: 29, title: "Manage Git Pull Requests", phase: "Version Control with Git", technologies: ["Git", "Pull Request", "GitHub"] },
+            { day: 30, title: "Git Hard Reset", phase: "Version Control with Git", technologies: ["Git", "Reset", "Version Control"] },
+            { day: 31, title: "Git Stash", phase: "Version Control with Git", technologies: ["Git", "Stash", "Version Control"] },
+            { day: 32, title: "Git Rebase", phase: "Version Control with Git", technologies: ["Git", "Rebase", "Version Control"] },
+            { day: 33, title: "Resolve Git Merge Conflicts", phase: "Version Control with Git", technologies: ["Git", "Merge Conflicts", "Resolution"] },
+            { day: 34, title: "Git Hook", phase: "Version Control with Git", technologies: ["Git", "Hooks", "Automation"] },
+
+            // Phase 3: Containerization with Docker (Days 35-47)
+            { day: 35, title: "Install Docker Packages and Start Docker Service", phase: "Containerization with Docker", technologies: ["Docker", "Installation", "Service"] },
+            { day: 36, title: "Deploy Nginx Container on Application Server", phase: "Containerization with Docker", technologies: ["Docker", "Nginx", "Container"] },
+            { day: 37, title: "Copy File to Docker Container", phase: "Containerization with Docker", technologies: ["Docker", "File Transfer", "Container"] },
+            { day: 38, title: "Pull Docker Image", phase: "Containerization with Docker", technologies: ["Docker", "Images", "Registry"] },
+            { day: 39, title: "Create a Docker Image From Container", phase: "Containerization with Docker", technologies: ["Docker", "Images", "Commit"] },
+            { day: 40, title: "Docker EXEC Operations", phase: "Containerization with Docker", technologies: ["Docker", "Exec", "Container"] },
+            { day: 41, title: "Write a Docker File", phase: "Containerization with Docker", technologies: ["Docker", "Dockerfile", "Build"] },
+            { day: 42, title: "Create a Docker Network", phase: "Containerization with Docker", technologies: ["Docker", "Networking", "Container"] },
+            { day: 43, title: "Docker Ports Mapping", phase: "Containerization with Docker", technologies: ["Docker", "Port Mapping", "Networking"] },
+            { day: 44, title: "Write a Docker Compose File", phase: "Containerization with Docker", technologies: ["Docker Compose", "YAML", "Multi-container"] },
+            { day: 45, title: "Resolve Dockerfile Issues", phase: "Containerization with Docker", technologies: ["Docker", "Troubleshooting", "Dockerfile"] },
+            { day: 46, title: "Deploy an App on Docker Containers", phase: "Containerization with Docker", technologies: ["Docker", "Application", "Deployment"] },
+            { day: 47, title: "Docker Python App", phase: "Containerization with Docker", technologies: ["Docker", "Python", "Application"] },
+
+            // Phase 4: Kubernetes Orchestration (Days 48-67)
+            { day: 48, title: "Deploy Pods in Kubernetes Cluster", phase: "Kubernetes Orchestration", technologies: ["Kubernetes", "Pods", "Deployment"] },
+            { day: 49, title: "Deploy Applications with Kubernetes Deployments", phase: "Kubernetes Orchestration", technologies: ["Kubernetes", "Deployments", "Applications"] },
+            { day: 50, title: "Set Resource Limits in Kubernetes Pods", phase: "Kubernetes Orchestration", technologies: ["Kubernetes", "Resources", "Limits"] },
+            { day: 51, title: "Execute Rolling Updates in Kubernetes", phase: "Kubernetes Orchestration", technologies: ["Kubernetes", "Rolling Updates", "Deployment"] },
+            { day: 52, title: "Revert Deployment to Previous Version in Kubernetes", phase: "Kubernetes Orchestration", technologies: ["Kubernetes", "Rollback", "Deployment"] },
+            { day: 53, title: "Resolve VolumeMounts Issue in Kubernetes", phase: "Kubernetes Orchestration", technologies: ["Kubernetes", "Volumes", "Troubleshooting"] },
+            { day: 54, title: "Kubernetes Shared Volumes", phase: "Kubernetes Orchestration", technologies: ["Kubernetes", "Shared Volumes", "Storage"] },
+            { day: 55, title: "Kubernetes Sidecar Containers", phase: "Kubernetes Orchestration", technologies: ["Kubernetes", "Sidecar", "Containers"] },
+            { day: 56, title: "Deploy Nginx Web Server on Kubernetes Cluster", phase: "Kubernetes Orchestration", technologies: ["Kubernetes", "Nginx", "Web Server"] },
+            { day: 57, title: "Print Environment Variables", phase: "Kubernetes Orchestration", technologies: ["Kubernetes", "Environment Variables", "Configuration"] },
+            { day: 58, title: "Deploy Grafana on Kubernetes Cluster", phase: "Kubernetes Orchestration", technologies: ["Kubernetes", "Grafana", "Monitoring"] },
+            { day: 59, title: "Troubleshoot Deployment issues in Kubernetes", phase: "Kubernetes Orchestration", technologies: ["Kubernetes", "Troubleshooting", "Deployment"] },
+            { day: 60, title: "Persistent Volumes in Kubernetes", phase: "Kubernetes Orchestration", technologies: ["Kubernetes", "Persistent Volumes", "Storage"] },
+            { day: 61, title: "Init Containers in Kubernetes", phase: "Kubernetes Orchestration", technologies: ["Kubernetes", "Init Containers", "Configuration"] },
+            { day: 62, title: "Manage Secrets in Kubernetes", phase: "Kubernetes Orchestration", technologies: ["Kubernetes", "Secrets", "Security"] },
+            { day: 63, title: "Deploy Iron Gallery App on Kubernetes", phase: "Kubernetes Orchestration", technologies: ["Kubernetes", "Application", "Deployment"] },
+            { day: 64, title: "Fix Python App Deployed on Kubernetes Cluster", phase: "Kubernetes Orchestration", technologies: ["Kubernetes", "Python", "Troubleshooting"] },
+            { day: 65, title: "Deploy Redis Deployment on Kubernetes", phase: "Kubernetes Orchestration", technologies: ["Kubernetes", "Redis", "Database"] },
+            { day: 66, title: "Deploy MySQL on Kubernetes", phase: "Kubernetes Orchestration", technologies: ["Kubernetes", "MySQL", "Database"] },
+            { day: 67, title: "Deploy Guest Book App on Kubernetes", phase: "Kubernetes Orchestration", technologies: ["Kubernetes", "Application", "Deployment"] },
+
+            // Phase 5: CI/CD with Jenkins (Days 68-81)
+            { day: 68, title: "Set Up Jenkins Server", phase: "CI/CD with Jenkins", technologies: ["Jenkins", "Setup", "CI/CD"] },
+            { day: 69, title: "Install Jenkins Plugins", phase: "CI/CD with Jenkins", technologies: ["Jenkins", "Plugins", "Configuration"] },
+            { day: 70, title: "Configure Jenkins User Access", phase: "CI/CD with Jenkins", technologies: ["Jenkins", "User Management", "Security"] },
+            { day: 71, title: "Configure Jenkins Job for Package Installation", phase: "CI/CD with Jenkins", technologies: ["Jenkins", "Jobs", "Package Management"] },
+            { day: 72, title: "Jenkins Parameterized Builds", phase: "CI/CD with Jenkins", technologies: ["Jenkins", "Parameters", "Builds"] },
+            { day: 73, title: "Jenkins Scheduled Jobs", phase: "CI/CD with Jenkins", technologies: ["Jenkins", "Scheduling", "Automation"] },
+            { day: 74, title: "Jenkins Database Backup Job", phase: "CI/CD with Jenkins", technologies: ["Jenkins", "Database", "Backup"] },
+            { day: 75, title: "Jenkins Slave Nodes", phase: "CI/CD with Jenkins", technologies: ["Jenkins", "Slave Nodes", "Distributed"] },
+            { day: 76, title: "Jenkins Project Security", phase: "CI/CD with Jenkins", technologies: ["Jenkins", "Security", "Project Management"] },
+            { day: 77, title: "Jenkins Deploy Pipeline", phase: "CI/CD with Jenkins", technologies: ["Jenkins", "Pipeline", "Deployment"] },
+            { day: 78, title: "Jenkins Conditional Pipeline", phase: "CI/CD with Jenkins", technologies: ["Jenkins", "Conditional", "Pipeline"] },
+            { day: 79, title: "Jenkins Deployment Job", phase: "CI/CD with Jenkins", technologies: ["Jenkins", "Deployment", "Job"] },
+            { day: 80, title: "Jenkins Chained Builds", phase: "CI/CD with Jenkins", technologies: ["Jenkins", "Chained Builds", "Automation"] },
+            { day: 81, title: "Jenkins Multistage Pipeline", phase: "CI/CD with Jenkins", technologies: ["Jenkins", "Multistage", "Pipeline"] },
+
+            // Phase 6: Configuration Management with Ansible (Days 82-93)
+            { day: 82, title: "Create Ansible Inventory for App Server Testing", phase: "Configuration Management with Ansible", technologies: ["Ansible", "Inventory", "Configuration"] },
+            { day: 83, title: "Troubleshoot and Create Ansible Playbook", phase: "Configuration Management with Ansible", technologies: ["Ansible", "Playbook", "Troubleshooting"] },
+            { day: 84, title: "Copy Data to App Servers using Ansible", phase: "Configuration Management with Ansible", technologies: ["Ansible", "Data Transfer", "Automation"] },
+            { day: 85, title: "Create Files on App Servers using Ansible", phase: "Configuration Management with Ansible", technologies: ["Ansible", "File Management", "Automation"] },
+            { day: 86, title: "Ansible Ping Module Usage", phase: "Configuration Management with Ansible", technologies: ["Ansible", "Ping Module", "Testing"] },
+            { day: 87, title: "Ansible Install Package", phase: "Configuration Management with Ansible", technologies: ["Ansible", "Package Management", "Installation"] },
+            { day: 88, title: "Ansible Blockinfile Module", phase: "Configuration Management with Ansible", technologies: ["Ansible", "Blockinfile", "Configuration"] },
+            { day: 89, title: "Ansible Manage Services", phase: "Configuration Management with Ansible", technologies: ["Ansible", "Service Management", "Automation"] },
+            { day: 90, title: "Managing ACLs Using Ansible", phase: "Configuration Management with Ansible", technologies: ["Ansible", "ACL", "Security"] },
+            { day: 91, title: "Ansible Lineinfile Module", phase: "Configuration Management with Ansible", technologies: ["Ansible", "Lineinfile", "Configuration"] },
+            { day: 92, title: "Managing Jinja2 Templates Using Ansible", phase: "Configuration Management with Ansible", technologies: ["Ansible", "Jinja2", "Templates"] },
+            { day: 93, title: "Using Ansible Conditionals", phase: "Configuration Management with Ansible", technologies: ["Ansible", "Conditionals", "Logic"] },
+
+            // Phase 7: Infrastructure as Code with Terraform (Days 94-100)
+            { day: 94, title: "Create VPC Using Terraform", phase: "Infrastructure as Code with Terraform", technologies: ["Terraform", "VPC", "AWS"] },
+            { day: 95, title: "Create Security Group Using Terraform", phase: "Infrastructure as Code with Terraform", technologies: ["Terraform", "Security Group", "AWS"] },
+            { day: 96, title: "Create EC2 Instance Using Terraform", phase: "Infrastructure as Code with Terraform", technologies: ["Terraform", "EC2", "AWS"] },
+            { day: 97, title: "Create IAM Policy Using Terraform", phase: "Infrastructure as Code with Terraform", technologies: ["Terraform", "IAM", "AWS"] },
+            { day: 98, title: "Launch EC2 in Private VPC Subnet Using Terraform", phase: "Infrastructure as Code with Terraform", technologies: ["Terraform", "EC2", "VPC", "AWS"] },
+            { day: 99, title: "Attach IAM Policy for DynamoDB Access Using Terraform", phase: "Infrastructure as Code with Terraform", technologies: ["Terraform", "IAM", "DynamoDB", "AWS"] },
+            { day: 100, title: "Create and Configure Alarm Using CloudWatch Using Terraform", phase: "Infrastructure as Code with Terraform", technologies: ["Terraform", "CloudWatch", "Monitoring", "AWS"] }
+        ];
+
+        // Initialize the dashboard
+        async function initDashboard() {
+            try {
+                await loadProgressData();
+                hideLoading();
+                showContent();
+                setupEventListeners();
+            } catch (error) {
+                showError('Failed to load progress data: ' + error.message);
+                hideLoading();
+            }
+        }
+
+        // Load progress data from GitHub
+        async function loadProgressData() {
+            try {
+                // Check which days have been completed by looking for directories
+                const repoContents = await fetchGitHubAPI('/contents');
+                const completedDays = [];
+                
+                for (const item of repoContents) {
+                    if (item.type === 'dir' && item.name.startsWith('Day-')) {
+                        const dayNumber = parseInt(item.name.split('-')[1]);
+                        if (!isNaN(dayNumber)) {
+                            completedDays.push(dayNumber);
+                        }
+                    }
+                }
+
+                // Update days data with completion status
+                allDaysData = daysConfig.map(day => ({
+                    ...day,
+                    completed: completedDays.includes(day.day),
+                    status: completedDays.includes(day.day) ? 'completed' : 'pending'
+                }));
+
+                // Update statistics
+                updateStatistics(completedDays);
+                
+                // Render phases and days
+                renderPhases();
+                
+                // Update last updated time
+                updateLastUpdated();
+
+            } catch (error) {
+                console.error('Error loading progress data:', error);
+                throw error;
+            }
+        }
+
+        // Fetch data from GitHub API
+        async function fetchGitHubAPI(endpoint) {
+            const response = await fetch(GITHUB_API_BASE + endpoint);
+            if (!response.ok) {
+                throw new Error(`GitHub API error: ${response.status}`);
+            }
+            return await response.json();
+        }
+
+        // Update statistics
+        function updateStatistics(completedDays) {
+            const completedCount = completedDays.length;
+            const progressPercentage = Math.round((completedCount / 100) * 100);
+            const currentStreak = calculateCurrentStreak(completedDays);
+            const phasesCompleted = calculatePhasesCompleted();
+
+            // Animate counters
+            animateCounter('completed-days', completedCount);
+            animateCounter('current-streak', currentStreak);
+            animateCounter('phases-completed', phasesCompleted);
+            
+            document.getElementById('progress-percentage').textContent = progressPercentage + '%';
+            document.getElementById('progress-text').textContent = `${progressPercentage}% Complete`;
+            document.getElementById('progress-fill').style.width = progressPercentage + '%';
+        }
+
+        // Animate counter
+        function animateCounter(elementId, target) {
+            const element = document.getElementById(elementId);
+            const start = parseInt(element.textContent) || 0;
+            const increment = target > start ? 1 : -1;
+            const timer = setInterval(() => {
+                const current = parseInt(element.textContent) || 0;
+                if (current !== target) {
+                    element.textContent = current + increment;
+                } else {
+                    clearInterval(timer);
+                }
+            }, 50);
+        }
+
+        // Update empty state
+        function updateEmptyState(visibleCount) {
+            const phasesContainer = document.getElementById('phases-container');
+            const existingEmptyState = document.querySelector('.empty-state');
+            
+            if (visibleCount === 0 && !existingEmptyState) {
+                const emptyStateHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-search"></i>
+                        <h3>No Results Found</h3>
+                        <p>Try adjusting your search or filter criteria</p>
+                    </div>
+                `;
+                phasesContainer.insertAdjacentHTML('afterend', emptyStateHTML);
+            } else if (visibleCount > 0 && existingEmptyState) {
+                existingEmptyState.remove();
+            }
+        }
+
+        // Setup event listeners
+        function setupEventListeners() {
+            // Search functionality
+            document.getElementById('search-box').addEventListener('input', function() {
+                filterDays(currentFilter);
+            });
+
+            // Modal close functionality
+            document.querySelector('.close').addEventListener('click', closeModal);
+
+            // Close modal on outside click
+            window.addEventListener('click', function(event) {
+                const modal = document.getElementById('day-modal');
+                if (event.target === modal) {
+                    closeModal();
+                }
+            });
+
+            // Keyboard navigation
+            document.addEventListener('keydown', function(event) {
+                if (event.key === 'Escape') {
+                    closeModal();
+                }
+            });
+
+            // Phase header keyboard support
+            document.addEventListener('keydown', function(event) {
+                if (event.target.classList.contains('phase-header') && (event.key === 'Enter' || event.key === ' ')) {
+                    event.preventDefault();
+                    event.target.click();
+                }
+            });
+
+            // Day card keyboard support
+            document.addEventListener('keydown', function(event) {
+                if (event.target.classList.contains('day-card') && (event.key === 'Enter' || event.key === ' ')) {
+                    event.preventDefault();
+                    event.target.click();
+                }
+            });
+
+            // Auto-refresh every 5 minutes
+            setInterval(async () => {
+                try {
+                    await loadProgressData();
+                    updateLastUpdated();
+                } catch (error) {
+                    console.error('Auto-refresh failed:', error);
+                }
+            }, 300000); // 5 minutes
+        }
+
+        // Calculate current streak
+        function calculateCurrentStreak(completedDays) {
+            if (completedDays.length === 0) return 0;
+            
+            completedDays.sort((a, b) => b - a);
+            let streak = 1;
+            
+            for (let i = 1; i < completedDays.length; i++) {
+                if (completedDays[i] === completedDays[i-1] - 1) {
+                    streak++;
+                } else {
+                    break;
+                }
+            }
+            
+            return streak;
+        }
+
+        // Calculate completed phases
+        function calculatePhasesCompleted() {
+            const phases = {};
+            allDaysData.forEach(day => {
+                if (!phases[day.phase]) {
+                    phases[day.phase] = { total: 0, completed: 0 };
+                }
+                phases[day.phase].total++;
+                if (day.completed) {
+                    phases[day.phase].completed++;
+                }
+            });
+
+            let completedPhases = 0;
+            Object.values(phases).forEach(phase => {
+                if (phase.completed === phase.total) {
+                    completedPhases++;
+                }
+            });
+
+            return completedPhases;
+        }
+
+        // Render phases
+        function renderPhases() {
+            const phasesContainer = document.getElementById('phases-container');
+            const phases = {};
+
+            // Group days by phase
+            allDaysData.forEach(day => {
+                if (!phases[day.phase]) {
+                    phases[day.phase] = [];
+                }
+                phases[day.phase].push(day);
+            });
+
+            // Render each phase
+            let phaseHTML = '';
+            Object.keys(phases).forEach(phaseName => {
+                const phaseDays = phases[phaseName];
+                const completedInPhase = phaseDays.filter(day => day.completed).length;
+                const phaseProgress = Math.round((completedInPhase / phaseDays.length) * 100);
+                const phaseId = phaseName.replace(/\s+/g, '-').toLowerCase();
+
+                phaseHTML += `
+                    <div class="phase slide-up">
+                        <div class="phase-header" onclick="togglePhase('${phaseId}')" tabindex="0" role="button" aria-expanded="false">
+                            <div class="phase-title">
+                                <h3>${phaseName}</h3>
+                                <i class="fas fa-chevron-down phase-toggle"></i>
+                            </div>
+                            <div class="phase-stats">
+                                <span>${completedInPhase}/${phaseDays.length} completed</span>
+                                <div class="phase-progress-bar">
+                                    <div class="phase-progress-fill" style="width: ${phaseProgress}%;"></div>
+                                </div>
+                                <span>${phaseProgress}%</span>
+                            </div>
+                        </div>
+                        <div class="phase-content" id="phase-${phaseId}">
+                            <div class="days-grid">
+                                ${renderDays(phaseDays)}
+                            </div>
+                        </div>
+                    </div>
+                `;
+            });
+
+            phasesContainer.innerHTML = phaseHTML;
+        }
+
+        // Render days
+        function renderDays(days) {
+            return days.map(day => `
+                <div class="day-card ${day.status}" onclick="showDayDetails(${day.day})" data-day="${day.day}" data-technologies="${day.technologies.join(' ').toLowerCase()}" tabindex="0" role="button">
+                    <div class="day-header">
+                        <span class="day-number">Day ${day.day}</span>
+                        <span class="day-status">${day.completed ? '✅' : '⏳'}</span>
+                    </div>
+                    <div class="day-title">${day.title}</div>
+                    <div class="day-tech-stack">
+                        ${day.technologies.map(tech => `<span class="tech-tag">${tech}</span>`).join('')}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Toggle phase visibility
+        function togglePhase(phaseId) {
+            const phaseContent = document.getElementById(`phase-${phaseId}`);
+            const phaseHeader = phaseContent.previousElementSibling;
+            const isActive = phaseContent.classList.contains('active');
+            
+            if (isActive) {
+                phaseContent.classList.remove('active');
+                phaseHeader.classList.remove('active');
+                phaseHeader.setAttribute('aria-expanded', 'false');
+            } else {
+                phaseContent.classList.add('active');
+                phaseHeader.classList.add('active');
+                phaseHeader.setAttribute('aria-expanded', 'true');
+            }
+        }
+
+        // Show day details in modal
+        async function showDayDetails(dayNumber) {
+            const modal = document.getElementById('day-modal');
+            const modalContent = document.getElementById('modal-content');
+            const dayInfo = allDaysData.find(d => d.day === dayNumber);
+            
+            modal.style.display = 'block';
+            document.body.style.overflow = 'hidden';
+            
+            modalContent.innerHTML = `
+                <div style="text-align: center; padding: 40px;">
+                    <div class="spinner" style="margin-bottom: 16px;"></div>
+                    <div class="loading-text">Loading day details...</div>
+                </div>
+            `;
+
+            try {
+                // Try to fetch README from the day folder
+                const readmeResponse = await fetch(`${GITHUB_RAW_BASE}/Day-${dayNumber}/README.md`);
+                
+                if (readmeResponse.ok) {
+                    const readmeContent = await readmeResponse.text();
+                    modalContent.innerHTML = `
+                        <div class="day-detail-header">
+                            <h3>Day ${dayNumber}: ${dayInfo.title}</h3>
+                            <div class="day-detail-meta">
+                                <span class="phase-badge">${dayInfo.phase}</span>
+                                <span class="status-badge ${dayInfo.status}">
+                                    ${dayInfo.completed ? '✅ Completed' : '⏳ Pending'}
+                                </span>
+                            </div>
+                        </div>
+                        <div class="day-detail-content">
+                            <div class="readme-content">
+                                ${formatReadmeContent(readmeContent)}
+                            </div>
+                        </div>
+                        <div class="modal-actions">
+                            <a href="https://github.com/KishanVyas308/100-Days-of-DevOps/tree/master/Day-${dayNumber}" target="_blank" class="btn btn-primary">
+                                <i class="fab fa-github"></i> View on GitHub
+                            </a>
+                            <button class="btn btn-secondary" onclick="closeModal()">
+                                <i class="fas fa-times"></i> Close
+                            </button>
+                        </div>
+                    `;
+                } else {
+                    modalContent.innerHTML = `
+                        <div class="day-detail-header">
+                            <h3>Day ${dayNumber}: ${dayInfo.title}</h3>
+                            <div class="day-detail-meta">
+                                <span class="phase-badge">${dayInfo.phase}</span>
+                                <span class="status-badge ${dayInfo.status}">
+                                    ${dayInfo.completed ? '✅ Completed' : '⏳ Pending'}
+                                </span>
+                            </div>
+                        </div>
+                        <div class="day-detail-content">
+                            <div class="day-detail-info">
+                                <div class="info-item">
+                                    <h4><i class="fas fa-layer-group"></i> Phase</h4>
+                                    <p>${dayInfo.phase}</p>
+                                </div>
+                                <div class="info-item">
+                                    <h4><i class="fas fa-tools"></i> Technologies</h4>
+                                    <div class="tech-list">
+                                        ${dayInfo.technologies.map(tech => `<span class="tech-tag">${tech}</span>`).join('')}
+                                    </div>
+                                </div>
+                                <div class="info-item">
+                                    <h4><i class="fas fa-info-circle"></i> Status</h4>
+                                    <p>${dayInfo.completed ? 'This day has been completed successfully! 🎉' : 'This day is scheduled for completion.'}</p>
+                                </div>
+                                ${!dayInfo.completed ? `
+                                <div class="pending-notice">
+                                    <div class="pending-icon">
+                                        <i class="fas fa-clock"></i>
+                                    </div>
+                                    <div class="pending-content">
+                                        <h4>Coming Soon</h4>
+                                        <p>This day's content will be available once it's completed. Stay tuned for hands-on DevOps learning!</p>
+                                    </div>
+                                </div>
+                                ` : ''}
+                            </div>
+                        </div>
+                        <div class="modal-actions">
+                            <a href="https://github.com/KishanVyas308/100-Days-of-DevOps" target="_blank" class="btn btn-primary">
+                                <i class="fab fa-github"></i> View Repository
+                            </a>
+                            <button class="btn btn-secondary" onclick="closeModal()">
+                                <i class="fas fa-times"></i> Close
+                            </button>
+                        </div>
+                    `;
+                }
+            } catch (error) {
+                modalContent.innerHTML = `
+                    <div class="error">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        <h3>Error Loading Day Details</h3>
+                        <p>Unable to load details for Day ${dayNumber}: ${error.message}</p>
+                    </div>
+                    <div class="modal-actions">
+                        <button class="btn btn-secondary" onclick="closeModal()">
+                            <i class="fas fa-times"></i> Close
+                        </button>
+                    </div>
+                `;
+            }
+        }
+
+        // Format README content with proper styling
+        function formatReadmeContent(content) {
+            // Basic markdown-like formatting
+            let formattedContent = content
+                // Convert headers
+                .replace(/^# (.*$)/gm, '<h1 class="readme-h1">$1</h1>')
+                .replace(/^## (.*$)/gm, '<h2 class="readme-h2">$1</h2>')
+                .replace(/^### (.*$)/gm, '<h3 class="readme-h3">$1</h3>')
+                .replace(/^#### (.*$)/gm, '<h4 class="readme-h4">$1</h4>')
+                
+                // Convert code blocks
+                .replace(/```(\w+)?\n([\s\S]*?)```/g, '<div class="code-block"><pre><code>$2</code></pre></div>')
+                .replace(/`([^`]+)`/g, '<code class="inline-code">$1</code>')
+                
+                // Convert tables
+                .replace(/^\|(.+)\|$/gm, function(match, content) {
+                    const cells = content.split('|').map(cell => cell.trim()).filter(cell => cell);
+                    return '<tr>' + cells.map(cell => `<td>${cell}</td>`).join('') + '</tr>';
+                })
+                
+                // Convert lists
+                .replace(/^- (.*$)/gm, '<li class="readme-li">$1</li>')
+                .replace(/^(\d+)\. (.*$)/gm, '<li class="readme-li-numbered">$2</li>')
+                
+                // Convert bold and italic
+                .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+                .replace(/\*(.*?)\*/g, '<em>$1</em>')
+                
+                // Convert links
+                .replace(/\[([^\]]+)\]\(([^)]+)\)/g, '<a href="$2" target="_blank" class="readme-link">$1 <i class="fas fa-external-link-alt"></i></a>')
+                
+                // Convert checkboxes
+                .replace(/- \[x\] (.*$)/gm, '<div class="checkbox checked"><i class="fas fa-check-square"></i> $1</div>')
+                .replace(/- \[ \] (.*$)/gm, '<div class="checkbox unchecked"><i class="far fa-square"></i> $1</div>')
+                
+                // Convert emojis and special symbols
+                .replace(/✅/g, '<span class="emoji success">✅</span>')
+                .replace(/⏳/g, '<span class="emoji pending">⏳</span>')
+                .replace(/🎯/g, '<span class="emoji target">🎯</span>')
+                .replace(/🚀/g, '<span class="emoji rocket">🚀</span>')
+                .replace(/📅/g, '<span class="emoji calendar">📅</span>')
+                .replace(/📋/g, '<span class="emoji clipboard">📋</span>')
+                .replace(/🧠/g, '<span class="emoji brain">🧠</span>')
+                .replace(/🛠️/g, '<span class="emoji tools">🛠️</span>')
+                .replace(/🔍/g, '<span class="emoji search">🔍</span>')
+                .replace(/📊/g, '<span class="emoji chart">📊</span>')
+                .replace(/🔒/g, '<span class="emoji lock">🔒</span>')
+                .replace(/📸/g, '<span class="emoji camera">📸</span>')
+                .replace(/🎓/g, '<span class="emoji graduate">🎓</span>')
+                .replace(/🔗/g, '<span class="emoji link">🔗</span>')
+                .replace(/📚/g, '<span class="emoji books">📚</span>')
+                .replace(/⚠️/g, '<span class="emoji warning">⚠️</span>')
+                .replace(/❌/g, '<span class="emoji error">❌</span>')
+                
+                // Convert line breaks
+                .replace(/\n\n/g, '</p><p class="readme-p">')
+                .replace(/\n/g, '<br>');
+
+            // Wrap in paragraphs
+            formattedContent = '<p class="readme-p">' + formattedContent + '</p>';
+            
+            // Clean up empty paragraphs
+            formattedContent = formattedContent.replace(/<p class="readme-p"><\/p>/g, '');
+            
+            // Convert grouped list items
+            formattedContent = formattedContent.replace(/(<li class="readme-li">.*?<\/li>)+/g, '<ul class="readme-ul">$&</ul>');
+            formattedContent = formattedContent.replace(/(<li class="readme-li-numbered">.*?<\/li>)+/g, '<ol class="readme-ol">$&</ol>');
+            
+            // Convert grouped table rows
+            formattedContent = formattedContent.replace(/(<tr>.*?<\/tr>)+/g, '<table class="readme-table"><tbody>$&</tbody></table>');
+            
+            return formattedContent;
+        }
+
+        // Close modal
+        function closeModal() {
+            document.getElementById('day-modal').style.display = 'none';
+            document.body.style.overflow = 'auto';
+        }
+
+        // Filter days
+        function filterDays(filter) {
+            currentFilter = filter;
+            
+            // Update active filter button
+            document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+
+            // Filter day cards
+            const dayCards = document.querySelectorAll('.day-card');
+            let visibleCount = 0;
+            
+            dayCards.forEach(card => {
+                const shouldShow = shouldShowCard(card, filter);
+                card.style.display = shouldShow ? 'block' : 'none';
+                if (shouldShow) visibleCount++;
+            });
+
+            // Show empty state if no results
+            updateEmptyState(visibleCount);
+        }
+
+        // Check if card should be shown based on filter
+        function shouldShowCard(card, filter) {
+            const dayNumber = parseInt(card.dataset.day);
+            const technologies = card.dataset.technologies;
+            const searchTerm = document.getElementById('search-box').value.toLowerCase();
+
+            // Search filter
+            if (searchTerm && !technologies.includes(searchTerm) && !card.textContent.toLowerCase().includes(searchTerm)) {
+                return false;
+            }
+
+            // Status filter
+            switch (filter) {
+                case 'completed':
+                    return card.classList.contains('completed');
+                case 'pending':
+                    return card.classList.contains('pending');
+                case 'linux':
+                    return technologies.includes('linux');
+                case 'docker':
+                    return technologies.includes('docker');
+                case 'kubernetes':
+                    return technologies.includes('kubernetes');
+                default:
+                    return true;
+            }
+        }
+
+        // Setup event listeners
+        function setupEventListeners() {
+            // Search functionality
+            document.getElementById('search-box').addEventListener('input', function() {
+                filterDays(currentFilter);
+            });
+
+            // Modal close functionality
+            document.querySelector('.close').addEventListener('click', closeModal);
+
+            // Close modal on outside click
+            window.addEventListener('click', function(event) {
+                const modal = document.getElementById('day-modal');
+                if (event.target === modal) {
+                    closeModal();
+                }
+            });
+
+            // Keyboard navigation
+            document.addEventListener('keydown', function(event) {
+                if (event.key === 'Escape') {
+                    closeModal();
+                }
+            });
+
+            // Phase header keyboard support
+            document.addEventListener('keydown', function(event) {
+                if (event.target.classList.contains('phase-header') && (event.key === 'Enter' || event.key === ' ')) {
+                    event.preventDefault();
+                    event.target.click();
+                }
+            });
+
+            // Day card keyboard support
+            document.addEventListener('keydown', function(event) {
+                if (event.target.classList.contains('day-card') && (event.key === 'Enter' || event.key === ' ')) {
+                    event.preventDefault();
+                    event.target.click();
+                }
+            });
+
+            // Auto-refresh every 5 minutes
+            setInterval(async () => {
+                try {
+                    await loadProgressData();
+                    updateLastUpdated();
+                } catch (error) {
+                    console.error('Auto-refresh failed:', error);
+                }
+            }, 300000); // 5 minutes
+        }
+
+        // Utility functions
+        function hideLoading() {
+            document.getElementById('loading').style.display = 'none';
+        }
+
+        function showContent() {
+            document.getElementById('content').style.display = 'block';
+        }
+
+        function showError(message) {
+            const errorDiv = document.getElementById('error');
+            errorDiv.innerHTML = `
+                <i class="fas fa-exclamation-triangle"></i>
+                <strong>Error:</strong> ${message}
+            `;
+            errorDiv.style.display = 'block';
+        }
+
+        function updateLastUpdated() {
+            const now = new Date();
+            document.getElementById('last-updated').innerHTML = `
+                <i class="fas fa-sync"></i> Last Updated: ${now.toLocaleString()}
+            `;
+        }
+
+        // Add CSS for additional modal styles
+        const additionalStyles = `
+            <style>
+                .day-detail-header {
+                    margin-bottom: 24px;
+                    padding-bottom: 16px;
+                    border-bottom: 1px solid var(--border-color);
+                }
+
+                .day-detail-header h3 {
+                    font-size: 1.5rem;
+                    font-weight: 600;
+                    color: var(--text-primary);
+                    margin-bottom: 12px;
+                }
+
+                .day-detail-meta {
+                    display: flex;
+                    gap: 12px;
+                    flex-wrap: wrap;
+                }
+
+                .phase-badge {
+                    background-color: var(--primary-color);
+                    color: white;
+                    padding: 4px 12px;
+                    border-radius: 12px;
+                    font-size: 0.75rem;
+                    font-weight: 500;
+                }
+
+                .status-badge {
+                    padding: 4px 12px;
+                    border-radius: 12px;
+                    font-size: 0.75rem;
+                    font-weight: 500;
+                }
+
+                .status-badge.completed {
+                    background-color: rgba(16, 185, 129, 0.1);
+                    color: var(--success-color);
+                    border: 1px solid rgba(16, 185, 129, 0.3);
+                }
+
+                .status-badge.pending {
+                    background-color: rgba(245, 158, 11, 0.1);
+                    color: var(--warning-color);
+                    border: 1px solid rgba(245, 158, 11, 0.3);
+                }
+
+                .day-detail-content {
+                    margin-bottom: 24px;
+                }
+
+                .readme-content {
+                    background-color: var(--bg-secondary);
+                    border: 1px solid var(--border-color);
+                    border-radius: 8px;
+                    padding: 20px;
+                    max-height: 400px;
+                    overflow-y: auto;
+                }
+
+                .day-detail-info {
+                    display: grid;
+                    gap: 20px;
+                }
+
+                .info-item h4 {
+                    font-size: 1rem;
+                    font-weight: 600;
+                    color: var(--text-primary);
+                    margin-bottom: 8px;
+                    display: flex;
+                    align-items: center;
+                    gap: 8px;
+                }
+
+                .info-item p {
+                    color: var(--text-secondary);
+                    line-height: 1.5;
+                }
+
+                .tech-list {
+                    display: flex;
+                    flex-wrap: wrap;
+                    gap: 8px;
+                }
+            </style>
+        `;
+
+        // Inject additional styles
+        document.head.insertAdjacentHTML('beforeend', additionalStyles);
+
+        // Initialize dashboard when page loads
+        document.addEventListener('DOMContentLoaded', initDashboard);
+    </script>
+</body>
+</html>
